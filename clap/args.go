@@ -124,7 +124,7 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 	reflectValue := reflect.ValueOf(cfg).Elem()
 	for name, desc := range fieldDescs {
 		field := reflectValue.Field(desc.Field)
-		if !field.CanSet() {
+		if !field.CanSet() || len(desc.Args) == 0 {
 			continue
 		}
 		switch desc.Type.Kind() {

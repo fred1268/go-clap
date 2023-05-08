@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/fred1268/clap/clap"
+	"github.com/fred1268/go-clap/clap"
 )
 
 func TestEmpty(t *testing.T) {

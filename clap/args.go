@@ -64,7 +64,11 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 				}
 				desc.Args = append(desc.Args, args[i])
 			case reflect.Bool:
-				desc.Args = append(desc.Args, "true")
+				n, values := consumeArguments(i+1, args, len(args))
+				if n == 1 {
+					values = append(values, "true")
+				}
+				desc.Args = append(desc.Args, values...)
 			case reflect.Slice, reflect.Array:
 				var values []string
 				count := len(args)
@@ -124,7 +128,7 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 	reflectValue := reflect.ValueOf(cfg).Elem()
 	for name, desc := range fieldDescs {
 		field := reflectValue.Field(desc.Field)
-		if !field.CanSet() || len(desc.Args) == 0 {
+		if !field.CanSet() || (len(desc.Args) == 0 && desc.Type.Kind() != reflect.Bool) {
 			continue
 		}
 		switch desc.Type.Kind() {
@@ -147,8 +151,12 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 			}
 			field.SetFloat(val)
 		case reflect.Bool:
-			if desc.Args != nil {
-				field.SetBool(true)
+			field.SetBool(true)
+			if len(desc.Args) >= 1 {
+				value := strings.ToLower(desc.Args[0])
+				if value == "0" || value == "false" || value == "no" {
+					field.SetBool(false)
+				}
 			}
 		case reflect.Slice:
 			if desc.Type.Elem().Kind() == reflect.String {

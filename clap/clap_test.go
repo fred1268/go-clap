@@ -182,21 +182,22 @@ func TestShortAndLong(t *testing.T) {
 func TestComplete(t *testing.T) {
 	type config struct {
 		Extensions  []string `clap:"--extensions,-e,mandatory"`
-		Recursive   bool     `clap:"--recusrive,-r"`
+		Recursive   bool     `clap:"--recursive,-r"`
 		Verbose     bool     `clap:"--verbose,-v"`
+		Size        int      `clap:"--size,-s"`
 		Directories []string `clap:"trailing"`
 	}
 	cfg := &config{}
 	var err error
 	var results *clap.Results
 	if results, err = clap.Parse([]string{
-		"--extensions", "jpg", "png", "bmp", "-v", "$home/temp", "$home/tmp", "/tmp",
+		"--extensions", "jpg", "png", "bmp", "-v", "-s", "10", "$home/temp", "$home/tmp", "/tmp",
 	}, cfg); err != nil {
 		t.Errorf("parsing error: %s", err)
 	}
 	t.Logf("t: %v\n", results)
 	wanted := &config{
-		Extensions: []string{"jpg", "png", "bmp"}, Verbose: true,
+		Extensions: []string{"jpg", "png", "bmp"}, Verbose: true, Size: 10,
 		Directories: []string{"$home/temp", "$home/tmp", "/tmp"},
 	}
 	if !reflect.DeepEqual(cfg, wanted) {

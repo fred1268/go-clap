@@ -64,8 +64,8 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 				}
 				desc.Args = append(desc.Args, args[i])
 			case reflect.Bool:
-				n, values := consumeArguments(i+1, args, len(args))
-				if n == 1 {
+				_, values := consumeArguments(i+1, args, len(args))
+				if len(values) == 0 {
 					values = append(values, "true")
 				}
 				desc.Args = append(desc.Args, values...)
@@ -128,7 +128,7 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 	reflectValue := reflect.ValueOf(cfg).Elem()
 	for name, desc := range fieldDescs {
 		field := reflectValue.Field(desc.Field)
-		if !field.CanSet() || (len(desc.Args) == 0 && desc.Type.Kind() != reflect.Bool) {
+		if !field.CanSet() || len(desc.Args) == 0 {
 			continue
 		}
 		switch desc.Type.Kind() {

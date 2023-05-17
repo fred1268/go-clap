@@ -205,6 +205,37 @@ func TestComplete(t *testing.T) {
 	}
 }
 
+func TestBooleans(t *testing.T) {
+	type config struct {
+		Recursive bool `clap:"--recursive,-R"`
+	}
+	cfg := &config{
+		Recursive: false,
+	}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--recursive"}, cfg); err != nil {
+		t.Errorf("parsing error: %s", err)
+	}
+	t.Logf("t: %v\n", results)
+	wanted := &config{Recursive: true}
+	if !reflect.DeepEqual(cfg, wanted) {
+		t.Errorf("wanted: '%v', got '%v'", wanted, cfg)
+	}
+	// with --no-recursive
+	cfg = &config{
+		Recursive: true,
+	}
+	if results, err = clap.Parse([]string{"--no-recursive"}, cfg); err != nil {
+		t.Errorf("parsing error: %s", err)
+	}
+	t.Logf("t: %v\n", results)
+	wanted = &config{Recursive: false}
+	if !reflect.DeepEqual(cfg, wanted) {
+		t.Errorf("wanted: '%v', got '%v'", wanted, cfg)
+	}
+}
+
 func TestTypes(t *testing.T) {
 	type config struct {
 		String      string    `clap:"--string"`
@@ -221,19 +252,22 @@ func TestTypes(t *testing.T) {
 		Float32     float32   `clap:"--float32"`
 		Float64     float64   `clap:"--float64"`
 		Bool        bool      `clap:"--bool"`
+		DefaultTrue bool      `clap:"--defaulttrue"`
 		StringSlice []string  `clap:"--string-slice"`
 		IntSlice    []int     `clap:"--int-slice"`
 		StringArray [2]string `clap:"--string-array"`
 		IntArray    [3]int    `clap:"--int-array"`
 		Trailing    []string  `clap:"trailing"`
 	}
-	cfg := &config{}
+	cfg := &config{
+		DefaultTrue: true,
+	}
 	var err error
 	var results *clap.Results
 	if results, err = clap.Parse([]string{
 		"--string", "str", "--int", "10", "--int8", "8", "--int16", "16", "--int32", "32", "--int64", "64",
 		"--uint", "12", "--uint8", "65535", "--uint16", "65535", "--uint32", "65535", "--uint64", "65535",
-		"--float32", "12.32", "--float64", "12.64", "--bool", "--string-slice", "a", "b", "c",
+		"--float32", "12.32", "--float64", "12.64", "--bool", "--no-defaulttrue", "--string-slice", "a", "b", "c",
 		"--int-slice", "10", "11", "12", "--string-array", "a", "b", "--int-array", "10", "11", "12",
 		"w", "x", "y", "z",
 	}, cfg); err != nil {
@@ -255,6 +289,7 @@ func TestTypes(t *testing.T) {
 		Float32:     12.32,
 		Float64:     12.64,
 		Bool:        true,
+		DefaultTrue: false,
 		StringSlice: []string{"a", "b", "c"},
 		IntSlice:    []int{10, 11, 12},
 		StringArray: [2]string{"a", "b"},

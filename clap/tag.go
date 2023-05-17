@@ -104,6 +104,9 @@ func computeFieldDescriptions(t reflect.Type) (map[string]*fieldDescription, err
 				fieldDesc.LongName = strings.Trim(tag, "-")
 				if fieldDesc.LongName != "" {
 					fieldDescs["--"+fieldDesc.LongName] = fieldDesc
+					if field.Type.Kind() == reflect.Bool {
+						fieldDescs["--no-"+fieldDesc.LongName] = fieldDesc
+					}
 				}
 				if fieldDesc.ShortName != "" {
 					fieldDescs["-"+fieldDesc.ShortName] = fieldDesc

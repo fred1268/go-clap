@@ -70,7 +70,7 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 			case reflect.Bool:
 				_, values := consumeArguments(i+1, args, len(args))
 				if len(values) == 0 {
-					values = append(values, "true")
+					values = append(values, fmt.Sprintf("%v", !strings.HasPrefix(arg, "--no-")))
 				}
 				desc.Args = append(desc.Args, values...)
 			case reflect.Slice, reflect.Array:

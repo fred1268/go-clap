@@ -17,7 +17,7 @@ silently collaborating with your code.
 
 clap is a **non intrusive** Command Line Argument Parser, that will use struct tags to understand
 what you want to parse. You don't have to implement interface or use a CLI to scaffold your project:
-you just call `clap.Parse(args, &YourConfig)` and you are done. You are notetheless responsible for
+you just call `clap.Parse(args, &YourConfig)` and you are done. You are nonetheless responsible for
 handling potential commands and subcommands, but clap will fill up your CLI configuration struct
 with the values passed on the command line for those commands / subcommands.
 
@@ -31,6 +31,8 @@ with the values passed on the command line for those commands / subcommands.
 - no dependencies
 - easy to configure
 - no CLI nor scaffolding
+
+> As a bonus, clap is about 350 LoC (excluding comments and tests)
 
 ---
 
@@ -61,19 +63,24 @@ Very easy to start with:
     }
 ```
 
+> Please note that this automatically generates a `--no-secure` and `--no-httpOnly`
+> flags that you can use on the command line to set the corresponding booleans
+> to the `false` value. This is useful when you want to give a boolean a `true`
+> default value.
+
 A clap struct tag has the following structure:
 
 ```go
     Name        Type    `clap:"longName[,shortName][,mandatory]"`
 ```
 
-longName is a... well... long name, like --recursive or --credentials
+longName is a... well... long name, like `--recursive` or `--credentials`
 
-shortName is a single letter name, like -R or -c
+shortName is a single letter name, like `-R` or `-c`
 
 mandatory can be added to make the non-optional parameters
 
-In your main, just make a call to clap.Parse():
+In your main, just make a call to `clap.Parse()`:
 
 ```go
     func main() {
@@ -131,7 +138,7 @@ You will get the following struct:
 
 The following parameter types are supported by clap:
 
-- bool: `--param`
+- bool: `--param` or `--no-param`
 - string: `--param test`
 - int: `--param 10`
 - float: `--param 12.3`

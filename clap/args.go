@@ -56,7 +56,11 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 				continue
 			}
 			switch desc.Type.Kind() {
-			case reflect.Int, reflect.String, reflect.Float64:
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				fallthrough
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				fallthrough
+			case reflect.String, reflect.Float32, reflect.Float64:
 				i++
 				if i >= len(args) || strings.HasPrefix(args[i], "-") {
 					results.Missing = append(results.Missing, arg)
@@ -64,7 +68,7 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 				}
 				desc.Args = append(desc.Args, args[i])
 			case reflect.Bool:
-				desc.Args = append(desc.Args, "true")
+				desc.Args = append(desc.Args, fmt.Sprintf("%v", !strings.HasPrefix(arg, "--no-")))
 			case reflect.Slice, reflect.Array:
 				var values []string
 				count := len(args)
@@ -124,13 +128,14 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 	reflectValue := reflect.ValueOf(cfg).Elem()
 	for name, desc := range fieldDescs {
 		field := reflectValue.Field(desc.Field)
-		if !field.CanSet() || len(desc.Args) == 0 {
+		if !field.CanSet() || len(desc.Args) == 0 || desc.Visited {
 			continue
 		}
+		desc.Visited = true
 		switch desc.Type.Kind() {
 		case reflect.String:
 			field.SetString(desc.Args[0])
-		case reflect.Int:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			val, err := strconv.ParseInt(desc.Args[0], 10, 64)
 			if err != nil {
 				results.Unexpected = append(results.Unexpected, name)
@@ -138,7 +143,15 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 					ErrUnexpectedArgument, desc.Args[0])
 			}
 			field.SetInt(val)
-		case reflect.Float64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			val, err := strconv.ParseInt(desc.Args[0], 10, 64)
+			if err != nil {
+				results.Unexpected = append(results.Unexpected, name)
+				return results, fmt.Errorf("argument '%s': %w (got '%s', expected integer)", name,
+					ErrUnexpectedArgument, desc.Args[0])
+			}
+			field.SetUint(uint64(val))
+		case reflect.Float32, reflect.Float64:
 			val, err := strconv.ParseFloat(desc.Args[0], 64)
 			if err != nil {
 				results.Unexpected = append(results.Unexpected, name)
@@ -147,9 +160,7 @@ func fillStruct(args []string, fieldDescs map[string]*fieldDescription, cfg any)
 			}
 			field.SetFloat(val)
 		case reflect.Bool:
-			if desc.Args != nil {
-				field.SetBool(true)
-			}
+			field.SetBool(desc.Args[0] == "true")
 		case reflect.Slice:
 			if desc.Type.Elem().Kind() == reflect.String {
 				field.Set(reflect.ValueOf(desc.Args))

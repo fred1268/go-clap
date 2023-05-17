@@ -209,7 +209,17 @@ func TestTypes(t *testing.T) {
 	type config struct {
 		String      string    `clap:"--string"`
 		Int         int       `clap:"--int"`
-		Float       float64   `clap:"--float"`
+		Int8        int8      `clap:"--int8"`
+		Int16       int16     `clap:"--int16"`
+		Int32       int32     `clap:"--int32"`
+		Int64       int64     `clap:"--int64"`
+		UInt        uint      `clap:"--uint"`
+		UInt8       uint8     `clap:"--uint8"`
+		UInt16      uint16    `clap:"--uint16"`
+		UInt32      uint32    `clap:"--uint32"`
+		UInt64      uint64    `clap:"--uint64"`
+		Float32     float32   `clap:"--float32"`
+		Float64     float64   `clap:"--float64"`
 		Bool        bool      `clap:"--bool"`
 		StringSlice []string  `clap:"--string-slice"`
 		IntSlice    []int     `clap:"--int-slice"`
@@ -221,7 +231,9 @@ func TestTypes(t *testing.T) {
 	var err error
 	var results *clap.Results
 	if results, err = clap.Parse([]string{
-		"--string", "str", "--int", "10", "--float", "12.3", "--bool", "--string-slice", "a", "b", "c",
+		"--string", "str", "--int", "10", "--int8", "8", "--int16", "16", "--int32", "32", "--int64", "64",
+		"--uint", "12", "--uint8", "65535", "--uint16", "65535", "--uint32", "65535", "--uint64", "65535",
+		"--float32", "12.32", "--float64", "12.64", "--bool", "--string-slice", "a", "b", "c",
 		"--int-slice", "10", "11", "12", "--string-array", "a", "b", "--int-array", "10", "11", "12",
 		"w", "x", "y", "z",
 	}, cfg); err != nil {
@@ -231,7 +243,17 @@ func TestTypes(t *testing.T) {
 	wanted := &config{
 		String:      "str",
 		Int:         10,
-		Float:       12.3,
+		Int8:        8,
+		Int16:       16,
+		Int32:       32,
+		Int64:       64,
+		UInt:        12,
+		UInt8:       255,
+		UInt16:      65535,
+		UInt32:      65535,
+		UInt64:      65535,
+		Float32:     12.32,
+		Float64:     12.64,
 		Bool:        true,
 		StringSlice: []string{"a", "b", "c"},
 		IntSlice:    []int{10, 11, 12},

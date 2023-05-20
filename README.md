@@ -149,6 +149,52 @@ The following parameter types are supported by clap:
 
 ---
 
+## Handling commands and subcommands
+
+clap doesn't have explicit support for commands and subcommands because
+it doesn't really need it. The way to have commands is simple:
+
+- create a parameter struct per command
+- switch on `os.Args[1]` (the command)
+- call `clap.Parse(os.Args[2:])`
+
+Here is an example:
+
+```go
+type RunParams struct {
+	ForceRebuild bool `clap:",-a"`
+	PrintOnly    bool `clap:",-n"`
+    // ...
+}
+
+type TestParams struct {
+	Binary      string `clap:",-o"`
+	CompileOnly bool   `clap:",-c"`
+    // ...
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		os.Exit(1)
+	}
+	var runParams RunParams
+	var testParams TestParams
+	switch os.Args[1] {
+	case "run":
+		clap.Parse(os.Args[2:], &runParams)
+	case "test":
+		clap.Parse(os.Args[2:], &testParams)
+	}
+	fmt.Printf("%v\n%v\n", runParams, testParams)
+}
+```
+
+> Working with subcommands involves exactly the same steps, except
+> that you will consume the first two args and give `os.Args[3:]`
+> to `clap.Parse()`.
+
+---
+
 ## License & contribution
 
 clap is licensed under the MIT license (see [LICENSE](LICENSE)).

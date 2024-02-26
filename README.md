@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/github/fred1268/go-clap/graph/badge.svg?token=Z4KUF67S8W)](https://codecov.io/github/fred1268/go-clap)
+
 ---
 
 # clap :clap:

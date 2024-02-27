@@ -1,7 +1,6 @@
 [![Release](https://img.shields.io/github/v/release/fred1268/go-clap.svg?style=flat-square)](https://github.com/fred1268/go-clap)
-[![codecov](https://codecov.io/github/fred1268/go-clap/graph/badge.svg?token=Z4KUF67S8W)](https://codecov.io/github/fred1268/go-clap)
-[![Go](https://github.com/fred1268/go-clap/workflows/Go/badge.svg?branch=development)](https://github.com/fred1268/go-clap/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fred1268/go-clap)](https://goreportcard.com/report/github.com/fred1268/go-clap)
+[![Go Report](https://goreportcard.com/badge/github.com/fred1268/go-clap)](https://goreportcard.com/report/github.com/fred1268/go-clap)
+[![Codecov](https://codecov.io/github/fred1268/go-clap/graph/badge.svg?token=Z4KUF67S8W)](https://codecov.io/github/fred1268/go-clap)
 [![Go Reference](https://pkg.go.dev/badge/github.com/fred1268/go-clap)](https://pkg.go.dev/github.com/fred1268/go-clap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

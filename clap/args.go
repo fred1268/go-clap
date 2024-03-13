@@ -114,9 +114,12 @@ func argsToFields(args []string, fieldDescs map[string]*fieldDescription, cfg an
 				name = desc.ShortName
 			}
 			results.Mandatory = append(results.Mandatory, name)
-			return results, fmt.Errorf("mandatory argument '%s' not found: %w", name, ErrMandatoryArgument)
 		}
 	}
+	if len(results.Mandatory) != 0 {
+		return results, fmt.Errorf("mandatory argument/s: '%v' not found: %w", strings.Join(results.Mandatory, ","), ErrMandatoryArgument)
+	}
+
 	return results, nil
 }
 

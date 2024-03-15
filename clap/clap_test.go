@@ -75,6 +75,31 @@ func TestMandatoryNotFound(t *testing.T) {
 	t.Logf("t: %v\n", results)
 }
 
+func TestMultipleMandatoryNotFound(t *testing.T) {
+	type config struct {
+		Image int `clap:"--image,mandatory"`
+		Num   int `clap:"--number,mandatory"`
+	}
+	wanted := []string{"image", "number"}
+
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+
+	if results, err = clap.Parse([]string{"-i", "photo.png"}, cfg); err != nil {
+		if !errors.Is(err, clap.ErrMandatoryArgument) {
+			t.Errorf("parsing error: %s", err)
+			return
+		}
+		if !reflect.DeepEqual(results.Mandatory, wanted) {
+			t.Errorf("wanted: '%v', got '%v'", wanted, results.Mandatory)
+			return
+		}
+		t.Logf("t: %v\n", err)
+	}
+	t.Logf("t: %v\n", results)
+}
+
 func TestInvalidTag(t *testing.T) {
 	type config struct {
 		Test string `clap:"--test,-wrongtag"`

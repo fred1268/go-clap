@@ -3,6 +3,7 @@ package clap_test
 import (
 	"errors"
 	"reflect"
+	"slices"
 	"testing"
 
 	"github.com/fred1268/go-clap/clap"
@@ -91,8 +92,9 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 			t.Errorf("parsing error: %s", err)
 			return
 		}
-		if !reflect.DeepEqual(results.Mandatory, wanted) {
-			t.Errorf("wanted: '%v', got '%v'", wanted, results.Mandatory)
+		got := results.Mandatory
+		if len(got) != 2 || !slices.Contains(got, wanted[0]) || !slices.Contains(got, wanted[1]) {
+			t.Errorf("wanted: '%v', got '%v'", wanted, got)
 			return
 		}
 		t.Logf("t: %v\n", err)

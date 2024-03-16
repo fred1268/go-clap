@@ -10,6 +10,7 @@ import (
 )
 
 func TestEmpty(t *testing.T) {
+	t.Parallel()
 	type config struct{}
 	cfg := &config{}
 	var err error
@@ -25,6 +26,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestEmptyAndUselessFields(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		AField       int
 		AnotherField string
@@ -43,6 +45,7 @@ func TestEmptyAndUselessFields(t *testing.T) {
 }
 
 func TestInvalidType(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image"`
 	}
@@ -60,6 +63,7 @@ func TestInvalidType(t *testing.T) {
 }
 
 func TestMandatoryNotFound(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image,mandatory"`
 	}
@@ -77,6 +81,7 @@ func TestMandatoryNotFound(t *testing.T) {
 }
 
 func TestMultipleMandatoryNotFound(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image,mandatory"`
 		Num   int `clap:"--number,mandatory"`
@@ -103,6 +108,7 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 }
 
 func TestInvalidTag(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test string `clap:"--test,-wrongtag"`
 	}
@@ -120,6 +126,7 @@ func TestInvalidTag(t *testing.T) {
 }
 
 func TestTooManyOptions(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test string `clap:"--test,-t,another"`
 	}
@@ -137,6 +144,7 @@ func TestTooManyOptions(t *testing.T) {
 }
 
 func TestShortName(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Short    string   `clap:",-S,mandatory"`
 		Integer  int      `clap:",-I,mandatory"`
@@ -160,6 +168,7 @@ func TestShortName(t *testing.T) {
 }
 
 func TestLongName(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test  string `clap:"--test,mandatory"`
 		Slice []int  `clap:"--slice"`
@@ -184,6 +193,7 @@ func TestLongName(t *testing.T) {
 }
 
 func TestShortAndLong(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Slice []int `clap:"--slice,-S"`
 	}
@@ -207,6 +217,7 @@ func TestShortAndLong(t *testing.T) {
 }
 
 func TestComplete(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Extensions  []string `clap:"--extensions,-e,mandatory"`
 		Recursive   bool     `clap:"--recursive,-r"`
@@ -233,6 +244,7 @@ func TestComplete(t *testing.T) {
 }
 
 func TestBooleans(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Recursive bool `clap:"--recursive,-R"`
 	}
@@ -264,6 +276,7 @@ func TestBooleans(t *testing.T) {
 }
 
 func TestTypes(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		String      string    `clap:"--string"`
 		Int         int       `clap:"--int"`
@@ -329,6 +342,7 @@ func TestTypes(t *testing.T) {
 }
 
 func TestReadme(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Cookie      string    `clap:"--cookie"`
 		HTTPOnly    bool      `clap:"--httpOnly"`

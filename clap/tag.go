@@ -20,7 +20,7 @@ func getTrailingFieldDescription(tags []string, field reflect.StructField) (*fie
 		return nil, fmt.Errorf("field '%s': %w (got '%s', expected 'trailing')", field.Name,
 			ErrInvalidTag, field.Tag.Get("clap"))
 	}
-	if fieldDesc.Type.Kind() != reflect.String && fieldDesc.Type.Elem().Kind() != reflect.String {
+	if fieldDesc.Type.Kind() != reflect.Slice || fieldDesc.Type.Elem().Kind() != reflect.String {
 		return nil, fmt.Errorf("field '%s' should be a []string: %w", field.Name, ErrInvalidTag)
 	}
 	return fieldDesc, nil

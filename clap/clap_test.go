@@ -3,7 +3,6 @@ package clap_test
 import (
 	"errors"
 	"reflect"
-	"slices"
 	"testing"
 
 	"github.com/fred1268/go-clap/clap"
@@ -98,7 +97,8 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 			return
 		}
 		got := results.Mandatory
-		if len(got) != 2 || !slices.Contains(got, wanted[0]) || !slices.Contains(got, wanted[1]) {
+		if len(got) != 2 || (got[0] != wanted[0] && got[0] != wanted[1]) ||
+			(got[1] != wanted[0] && got[1] != wanted[1]) {
 			t.Errorf("wanted: '%v', got '%v'", wanted, got)
 			return
 		}
@@ -189,6 +189,9 @@ func TestLongName(t *testing.T) {
 	}
 	if !results.HasWarnings() || len(results.Ignored) != 4 {
 		t.Errorf("wrong error number / type")
+	}
+	if results.HasErrors() {
+		t.Errorf("unexpected errors")
 	}
 }
 
@@ -453,7 +456,7 @@ func TestMissingSliceArgument(t *testing.T) {
 	t.Logf("t: %v\n", results)
 }
 
-func TestUintParsing(t *testing.T) {
+func TestUintParsingError(t *testing.T) {
 	t.Parallel()
 	type config struct {
 		Uint uint `clap:"--uint"`
@@ -467,7 +470,7 @@ func TestUintParsing(t *testing.T) {
 	t.Logf("t: %v\n", results)
 }
 
-func TestFloatParsing(t *testing.T) {
+func TestFloatParsingError(t *testing.T) {
 	t.Parallel()
 	type config struct {
 		Float64 float64 `clap:"--float64"`

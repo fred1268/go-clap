@@ -84,9 +84,9 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 	t.Parallel()
 	type config struct {
 		Image int `clap:"--image,mandatory"`
-		Num   int `clap:"--number,mandatory"`
+		Num   int `clap:",-n,mandatory"`
 	}
-	wanted := []string{"image", "number"}
+	wanted := []string{"image", "n"}
 
 	cfg := &config{}
 	var err error
@@ -376,4 +376,122 @@ func TestReadme(t *testing.T) {
 	if !reflect.DeepEqual(cfg, wanted) {
 		t.Errorf("wanted: '%v', got '%v'", wanted, cfg)
 	}
+}
+
+func TestInvalidIntSlice(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice []int `clap:"--int-slice"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-slice", "10", "foo", "12"}, cfg); err == nil {
+		t.Errorf("unexpected parsing of non integer values in slice")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestInvalidIntArray(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice [3]int `clap:"--int-array"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-array", "10", "foo", "12"}, cfg); err == nil {
+		t.Errorf("unexpected parsing of non integer values in array")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestDuplicatedArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		String string `clap:"--string"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "hello", "--string", "world"}, cfg); err == nil {
+		t.Errorf("unexpected duplicated argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestMissingArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		String string `clap:"--string"`
+		Int    int    `clap:"--int"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "--string", "world"}, cfg); err == nil {
+		t.Errorf("unexpected argument")
+	}
+	t.Logf("t: %v\n", results)
+	if results, err = clap.Parse([]string{"--string", "world", "--int"}, cfg); err == nil {
+		t.Errorf("unexpected argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestMissingSliceArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice []int `clap:"--int-slice"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-slice"}, cfg); err == nil {
+		t.Errorf("unexpected slice argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestUintParsing(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		Uint uint `clap:"--uint"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--uint", "foo"}, cfg); err == nil {
+		t.Errorf("unexpected uint parsing")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestFloatParsing(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		Float64 float64 `clap:"--float64"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--float64", "foo"}, cfg); err == nil {
+		t.Errorf("unexpected float parsing")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestUnsettableField(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		aString string `clap:"--string"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "foo"}, cfg); err != nil {
+		t.Errorf("unexpected setting field")
+	}
+	cfg.aString = "" // use field
+	t.Logf("t: %v\n", results)
 }

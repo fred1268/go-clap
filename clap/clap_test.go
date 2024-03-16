@@ -3,12 +3,14 @@ package clap_test
 import (
 	"errors"
 	"reflect"
+	"slices"
 	"testing"
 
 	"github.com/fred1268/go-clap/clap"
 )
 
 func TestEmpty(t *testing.T) {
+	t.Parallel()
 	type config struct{}
 	cfg := &config{}
 	var err error
@@ -24,6 +26,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestEmptyAndUselessFields(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		AField       int
 		AnotherField string
@@ -42,6 +45,7 @@ func TestEmptyAndUselessFields(t *testing.T) {
 }
 
 func TestInvalidType(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image"`
 	}
@@ -59,6 +63,7 @@ func TestInvalidType(t *testing.T) {
 }
 
 func TestMandatoryNotFound(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image,mandatory"`
 	}
@@ -76,11 +81,12 @@ func TestMandatoryNotFound(t *testing.T) {
 }
 
 func TestMultipleMandatoryNotFound(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Image int `clap:"--image,mandatory"`
-		Num   int `clap:"--number,mandatory"`
+		Num   int `clap:",-n,mandatory"`
 	}
-	wanted := []string{"image", "number"}
+	wanted := []string{"image", "n"}
 
 	cfg := &config{}
 	var err error
@@ -91,8 +97,9 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 			t.Errorf("parsing error: %s", err)
 			return
 		}
-		if !reflect.DeepEqual(results.Mandatory, wanted) {
-			t.Errorf("wanted: '%v', got '%v'", wanted, results.Mandatory)
+		got := results.Mandatory
+		if len(got) != 2 || !slices.Contains(got, wanted[0]) || !slices.Contains(got, wanted[1]) {
+			t.Errorf("wanted: '%v', got '%v'", wanted, got)
 			return
 		}
 		t.Logf("t: %v\n", err)
@@ -101,6 +108,7 @@ func TestMultipleMandatoryNotFound(t *testing.T) {
 }
 
 func TestInvalidTag(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test string `clap:"--test,-wrongtag"`
 	}
@@ -118,6 +126,7 @@ func TestInvalidTag(t *testing.T) {
 }
 
 func TestTooManyOptions(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test string `clap:"--test,-t,another"`
 	}
@@ -135,6 +144,7 @@ func TestTooManyOptions(t *testing.T) {
 }
 
 func TestShortName(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Short    string   `clap:",-S,mandatory"`
 		Integer  int      `clap:",-I,mandatory"`
@@ -158,6 +168,7 @@ func TestShortName(t *testing.T) {
 }
 
 func TestLongName(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Test  string `clap:"--test,mandatory"`
 		Slice []int  `clap:"--slice"`
@@ -182,6 +193,7 @@ func TestLongName(t *testing.T) {
 }
 
 func TestShortAndLong(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Slice []int `clap:"--slice,-S"`
 	}
@@ -205,6 +217,7 @@ func TestShortAndLong(t *testing.T) {
 }
 
 func TestComplete(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Extensions  []string `clap:"--extensions,-e,mandatory"`
 		Recursive   bool     `clap:"--recursive,-r"`
@@ -231,6 +244,7 @@ func TestComplete(t *testing.T) {
 }
 
 func TestBooleans(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Recursive bool `clap:"--recursive,-R"`
 	}
@@ -262,6 +276,7 @@ func TestBooleans(t *testing.T) {
 }
 
 func TestTypes(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		String      string    `clap:"--string"`
 		Int         int       `clap:"--int"`
@@ -327,6 +342,7 @@ func TestTypes(t *testing.T) {
 }
 
 func TestReadme(t *testing.T) {
+	t.Parallel()
 	type config struct {
 		Cookie      string    `clap:"--cookie"`
 		HTTPOnly    bool      `clap:"--httpOnly"`
@@ -360,4 +376,122 @@ func TestReadme(t *testing.T) {
 	if !reflect.DeepEqual(cfg, wanted) {
 		t.Errorf("wanted: '%v', got '%v'", wanted, cfg)
 	}
+}
+
+func TestInvalidIntSlice(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice []int `clap:"--int-slice"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-slice", "10", "foo", "12"}, cfg); err == nil {
+		t.Errorf("unexpected parsing of non integer values in slice")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestInvalidIntArray(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice [3]int `clap:"--int-array"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-array", "10", "foo", "12"}, cfg); err == nil {
+		t.Errorf("unexpected parsing of non integer values in array")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestDuplicatedArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		String string `clap:"--string"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "hello", "--string", "world"}, cfg); err == nil {
+		t.Errorf("unexpected duplicated argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestMissingArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		String string `clap:"--string"`
+		Int    int    `clap:"--int"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "--string", "world"}, cfg); err == nil {
+		t.Errorf("unexpected argument")
+	}
+	t.Logf("t: %v\n", results)
+	if results, err = clap.Parse([]string{"--string", "world", "--int"}, cfg); err == nil {
+		t.Errorf("unexpected argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestMissingSliceArgument(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		IntSlice []int `clap:"--int-slice"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--int-slice"}, cfg); err == nil {
+		t.Errorf("unexpected slice argument")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestUintParsing(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		Uint uint `clap:"--uint"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--uint", "foo"}, cfg); err == nil {
+		t.Errorf("unexpected uint parsing")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestFloatParsing(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		Float64 float64 `clap:"--float64"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--float64", "foo"}, cfg); err == nil {
+		t.Errorf("unexpected float parsing")
+	}
+	t.Logf("t: %v\n", results)
+}
+
+func TestUnsettableField(t *testing.T) {
+	t.Parallel()
+	type config struct {
+		aString string `clap:"--string"`
+	}
+	cfg := &config{}
+	var err error
+	var results *clap.Results
+	if results, err = clap.Parse([]string{"--string", "foo"}, cfg); err != nil {
+		t.Errorf("unexpected setting field")
+	}
+	cfg.aString = "" // use field
+	t.Logf("t: %v\n", results)
 }
